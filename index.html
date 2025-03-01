@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR Bumble</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #FFFFFF;
+            color: #333;
+            text-align: center;
+
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 700px;
+            padding: 15px 20px;
+            background: #0056b3;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 700px;
+        }
+
+        .logo {
+            border-radius: 50%;
+        }
+
+        .logo-container img {
+            height: 40px;
+        }
+
+        .logo-container span {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            width: 100vw;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 12px;
+        }
+
+        nav a:hover {
+            background: #003d82;
+            border-radius: 5px;
+        }
+
+        .burger-menu {
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            width: 250px;
+            height: auto;
+            background: #003d82;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .burger-menu a {
+            display: block;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 0;
+            z-index: 1;
+        }
+
+        .burger-menu a:hover {
+            background: #00285e;
+            padding-left: 10px;
+        }
+
+        .burger-icon {
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+            color: white;
+        }
+
+        .slideshow-container {
+            width: 1519px;
+            height: 60vh;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            object-fit: cover;
+            background-size: cover;
+            z-index: 0.5;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 50px;
+            background: #FFFFFF;
+        }
+
+        footer {
+            background: #0056b3;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        button {
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn {
+            color: white;
+            border: darkgreen;
+            background-color: rgb(67, 109, 3);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 12px;
+            position: sticky;
+            border-radius: 5px;
+            box-shadow: 2px 2px 2px 2px yellowgreen;
+        }
+
+        .container2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+
+        }
+
+        .box {
+            box-shadow: 7px 7px 7px 7px rgb(170, 169, 169);
+            background: #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 200px;
+            height: 270px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .box img {
+            border-radius: 10px;
+            width: 110px;
+            height: 110px;
+            position: absolute;
+            top: 15px;
+        }
+
+        .task {
+            font-weight: bolder;
+            text-decoration: underline;
+            margin-bottom: 0%;
+            padding-bottom: 0%;
+        }
+
+         /* Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+        }
+        .chatbot-header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .chatbot-body {
+            background-color: white;
+            display: none;
+            max-height: 300px;
+            flex-direction: column;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+        .chatbot-body.open {
+            max-height: 600px;
+            display: flex;
+        }
+        .chatbot-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 250px;
+        }
+        .message {
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .message.user {
+            background-color: #e0e0e0;
+            align-self: flex-end;
+        }
+        .message.bot {
+            background-color: #4a90e2;
+            color: white;
+        }
+        .chatbot-input {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: white;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .chatbot-input button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .predefined-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .predefined-buttons button {
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+       
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <span class="burger-icon" onclick="toggleMenu()">☰</span>
+            <img class="logo" src="logo.png" alt="Logo">
+            <span>Mr Bumble</span>
+        </div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About Us</a>
+            <a href="#whats-new">What's New</a>
+        </nav>
+    </header>
+    <div id="burger-menu" class="burger-menu">
+        <a href="#home">Home</a>
+        <a href="#progress-tracker">Progress Tracker</a>
+        <a href="doctor.html">Doctor</a>
+        <!-- <a href="#games">Games</a> -->
+        <a href="#clinic">Clinic</a>
+        <a href="#contact">Contact Us</a>
+    </div>
+
+    <div id="home" class="container">
+        <div class="slideshow-container">
+            <img class="slide" src="hero-image.png" alt="Slide 1">
+            <img class="slide" src="WhatsApp Image 2025-02-28 at 15.19.38_1d490c4b.jpg" alt="Slide 2">
+            <img class="slide" src="WhatsApp Image 2025-02-28 at 15.56.28_ecb9bacd.jpg" alt="Slide 3">
+        </div>
+        <br>
+        <!-- <h1>Welcome to MR Bumble</h1> -->
+         <br>
+        <h2>Helping parents track their child's progress and connect with specialists in a fun and engaging way.</h2>
+        <br>
+        <button class="btn"> <a href="test.html">Take Test</a></button> 
+
+        <div class="p-6 max-w-md w-full bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-700">How can we Help You? </h2>
+            <form action="https://formspree.io/f/your_form_id" method="POST" class="space-y-4">
+                <input type="text" name="name" placeholder="Your Name"
+                    class="w-full p-3 border rounded-lg focus:outline-none" required>
+                <input type="email" name="email" placeholder="Your Email"
+                    class="w-full p-3 border rounded-lg focus:outline-none" required>
+                <input type="tel" name="phone" placeholder="Your Phone Number"
+                    class="w-full p-3 border rounded-lg focus:outline-none" required>
+                <textarea name="feedback" placeholder="Describe Your Problem"
+                    class="w-full p-3 border rounded-lg focus:outline-none" required></textarea>
+                <label class="block mb-2 text-gray-600">Rating:</label>
+                <div class="flex space-x-2 mb-4">
+                    <input type="radio" name="rating" value="1" required> 1
+                    <input type="radio" name="rating" value="2"> 2
+                    <input type="radio" name="rating" value="3"> 3
+                    <input type="radio" name="rating" value="4"> 4
+                    <input type="radio" name="rating" value="5"> 5
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white p-3 rounded-lg focus:outline-none">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="about" class="container">
+        <div class="about-container">
+            <h1>About Us</h1>
+            <br>
+            <p>At Mr Bumble, we understand that receiving a diagnosis of Global Developmental Delay (GDD) for your child can be a challenging and emotional experience. Our mission is to support and empower parents through this journey by providing expert guidance and comprehensive resources. We offer a range of services designed to help families navigate the complexities of GDD, including specialized tests for early assessment, consultations with experienced pediatricians and developmental specialists, and tailored therapy and intervention plans to support your child’s development.  
+    
+                In addition to our one-on-one consultations, we provide progress tracking tools to monitor your child’s growth and improvements over time.</p>
+                <br><p> Our 24/7 chatbot support ensures that help is always available, whether you have urgent questions or need ongoing advice. We also offer virtual webinars, featuring insights from top professionals, allowing parents to access valuable knowledge and connect with a community of others facing similar challenges.  
+                
+                At Mr Bumble, we believe every child has the potential to thrive, and our goal is to help families access the right tools and support to help their child overcome developmental delays. We are here to provide the care, guidance, and confidence parents need to ensure their child’s best possible future.  
+                
+                *You’re not alone—we’re with you every step of the way.*</p>
+        </div>
+        <p>MR Bumble is dedicated to assisting parents with child development tracking and expert consultations.</p>
+    </div>
+    <!-- whats new section -->
+    <div id="whats-new" class="container">
+        <h1>What's New In Mr Bumble</h1>
+        <br>
+        <br>
+        <div class="container2">
+            <div class="box">
+                <img src="test.jpg" alt="Test">
+                <p class="task">Test</p><br><small>Assessments with accurate diagnosis</small>
+            </div>
+            <div class="box">
+                <img src="doctor.jpg" alt="Doctor Consultancy">
+                <p class="task">Doctor Consultancy</p><br><small>Expert advice from licensed medical
+                    professionals</small>
+            </div>
+            <div class="box">
+                <img src="therapy.jpg" alt="Therapy">
+                <p class="task">Therapy</p><br><small>Personalized sessions to support mental well-being</small>
+            </div>
+            <div class="box">
+                <img src="clinical.jpg" alt="Clinical Support">
+                <p class="task">Clinical Support</p><br><small>Specialized care to aid in recovery</small>
+            </div>
+            <div class="box">
+                <img src="progress.jpg" alt="Progress Tracking">
+                <p class="task">Progress Tracking</p><br><small>Monitor improvements with real-time insights</small>
+            </div>
+            <div class="box">
+                <img src="virtual webinar.jpg" alt="Virtual Webinar & Chatbot">
+                <p class="task">Virtual Webinar</p><br><small>24/7 assistance and learning opportunities</small>
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <p>Stay updated with the latest features, articles, and advancements in child development tracking.</p>
+    </div>
+
+    <div class="chatbot-container">
+        <div class="chatbot-header" onclick="toggleChatbot()">Chat with us!</div>
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="predefined-buttons">
+                <button onclick="sendPredefinedMessage('What services do you offer?')">What services do you offer?</button>
+                <button onclick="sendPredefinedMessage('How can I contact support?')">How can I contact support?</button>
+                <button onclick="sendPredefinedMessage('Tell me about your website')">Tell me about your website</button>
+                <button onclick="sendPredefinedMessage('How to use this website?')">How to use this website?</button>
+                <button onclick="sendPredefinedMessage('Is customer support available?')">Is customer support available?</button>
+                <button onclick="sendPredefinedMessage('What is the purpose of this site?')">What is the purpose of this site?</button>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="userInput" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <footer>
+        <p>Contact us: support@mrbumble.com | Phone: +91 9876543210</p>
+    </footer>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("burger-menu");
+            if (menu.style.display === "block") {
+                menu.style.display = "none";
+            } else {
+                menu.style.display = "block";
+                menu.style.position = "fixed";
+                menu.style.top = "60px";
+                menu.style.left = "0";
+            }
+        }
+        let slideIndex = 0;
+        showSlides();
+
+        function showSlides() {
+            let slides = document.getElementsByClassName("slide");
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex - 1].style.display = "block";
+            setTimeout(showSlides, 3000); // Change image every 5 seconds
+        }
+
+        document.querySelector('form').addEventListener('submit', function () {
+            setTimeout(function () {
+                window.location.href = 'https://your-redirect-url.com';
+            }, 500);
+        });
+
+
+        const chatbotBody = document.getElementById('chatbotBody');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+
+        const predefinedResponses = {
+            'services': ' We provide tools for GGD diagnosis, prevention, progress tracking, and expert medical consultation.',
+            'contact support': ' For any inquiries, reach out to the how can I help u desk',
+            'website': 'Our website Mr Bumbles is a platform dedicated to GDD diagnosis, prevention, and expret consultaions',
+            'use website': 'Navigate through the menu to explore our services or you can use the chatbox provided ',
+            'customer support': 'Yes, our chatbox is available 24/7 to assist you, where your GGD related questions are welcomed.',
+            'purpose': 'Our site aims to make managing GGD simple and stress-free with trusted info, progress tracking and professional support',
+            'testing': 'We provide standardised testing backed by Bayley scale-4 as it is regarded as the industry best diagnosis scale . You can check out our testing system',
+            'solved': 'Mr Bumble provides proper consultancy and therapy who specializes in treatment of GDD',
+            'therapy': 'Mr Bumble provides proper guide  therapy backed by therapist and guided by doctor according to the needs',
+            'test': 'We provide standardised testing backed by Bayley scale-4 as it is regarded as the industry best diagnosis scale . You can check out our testing system',
+            'child': 'Early Diaganosis in child is crucial its essential for further development please do the testing',
+            'kids': 'Early Diaganosis in child is crucial its essential for further development please do the testing',
+            'hi': 'Mr Bumble here how can i help you',
+           
+        };
+
+        function toggleChatbot() {
+            chatbotBody.classList.toggle('open');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (message) {
+                displayMessage(message, 'user');
+                respondToMessage(message);
+                input.value = '';
+            }
+        }
+
+        function displayMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            messageElement.textContent = text;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function respondToMessage(userMessage) {
+            const normalizedMessage = userMessage.toLowerCase();
+            const response = Object.keys(predefinedResponses).find(key => normalizedMessage.includes(key));
+            const botReply = response ? predefinedResponses[response] : 'I am not sure about that.';
+            setTimeout(() => {
+                displayMessage(botReply, 'bot');
+            }, 500);
+        } 
+    </script>
+    </body>
+    
+    </html>

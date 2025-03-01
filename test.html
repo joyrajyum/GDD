@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayley Scale GDD Test</title>
+
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .question { margin: 20px 0; font-size: 18px; }
+        .options { display: flex; justify-content: center; gap: 10px; }
+        .options button { padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
+        .low { background: #ff5c5c; color: white; }
+        .medium { background: #ffcc00; color: black; }
+        .high { background: #28a745; color: white; }
+        .selected { border: 3px solid black; background-color: #444; color: white; } 
+        #testContainer { display: none; }
+        
+        /* ✅ Full-Screen Result Styling */
+        #resultScreen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 24px;
+            padding: 20px;
+        }
+        #resultScreen button {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: #ffcc00;
+            color: black;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Bayley Scale-Based GDD Test</h2>
+
+    <!-- Age Group Selection -->
+    <label for="ageGroup">Select Age Range:</label>
+    <select id="ageGroup">
+        <option value="0-6">0-6 months</option>
+        <option value="7-12">7-12 months</option>
+        <option value="13-24">13-24 months</option>
+        <option value="25-36">25-36 months</option>
+        <option value="37-42">37-42 months</option>
+    </select>
+    <button onclick="startTest()">Start Test</button>
+
+    <!-- Test Container -->
+    <div id="testContainer">
+        <div id="test"></div>
+        <button onclick="calculateScore()">Submit Test</button>
+    </div>
+
+    <!-- ✅ Full-Screen Result Display -->
+    <div id="resultScreen">
+        <div id="resultText"></div>
+        <button onclick="restartTest()">Retake Test</button>
+    </div>
+
+    <script>
+        let answers = {};  
+
+        // ✅ Questions for All Age Groups (Bayley Scale)
+        const questionsByAge = {
+            "0-6": {
+                cognitive: ["Does your baby respond to loud sounds?", "Does your baby track objects?"],
+                language: ["Does your baby coo?", "Does your baby react to their name?"],
+                motor: ["Can your baby lift their head?", "Can your baby grasp objects?"],
+                social: ["Does your baby smile at people?", "Does your baby enjoy being held?"],
+                adaptive: ["Does your baby swallow well?", "Does your baby calm when comforted?"]
+            },
+            "7-12": {
+                cognitive: ["Does your baby explore objects?", "Does your baby recognize familiar people?"],
+                language: ["Does your baby babble a lot?", "Does your baby respond to their name?"],
+                motor: ["Can your baby crawl?", "Can your baby stand while holding on?"],
+                social: ["Does your baby enjoy social play?", "Does your baby imitate facial expressions?"],
+                adaptive: ["Does your baby try to feed themselves?", "Does your baby drink from a cup?"]
+            }
+        };
+
+        function startTest() {
+            let ageGroup = document.getElementById("ageGroup").value;
+            let testDiv = document.getElementById("test");
+            testDiv.innerHTML = ""; 
+            answers = {}; 
+
+            if (!questionsByAge[ageGroup]) {
+                alert("⚠️ No questions available for this age group yet!");
+                return;
+            }
+
+            let ageQuestions = questionsByAge[ageGroup];
+
+            for (let domain in ageQuestions) {
+                ageQuestions[domain].forEach((question, index) => {
+                    let questionId = `${domain}_${index}`;
+                    testDiv.innerHTML += `
+                        <div class="question" id="question_${questionId}">
+                            <p>${question}</p>
+                            <div class="options">
+                                <button class="low" onclick="selectAnswer('${questionId}', 1, this)">1</button>
+                                <button class="low" onclick="selectAnswer('${questionId}', 2, this)">2</button>
+                                <button class="medium" onclick="selectAnswer('${questionId}', 3, this)">3</button>
+                                <button class="high" onclick="selectAnswer('${questionId}', 4, this)">4</button>
+                                <button class="high" onclick="selectAnswer('${questionId}', 5, this)">5</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById("testContainer").style.display = "block";
+        }
+
+        function selectAnswer(questionID, score, button) {
+            answers[questionID] = score;
+            let buttons = document.querySelectorAll(`#question_${questionID} .options button`);
+            buttons.forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+        }
+
+        function calculateScore() {
+            if (Object.keys(answers).length === 0) {
+                alert("⚠️ Please answer at least one question before submitting.");
+                return;
+            }
+
+            let totalScore = Object.values(answers).reduce((a, b) => a + b, 0);
+            let maxScore = Object.keys(answers).length * 5;
+            let percentage = (totalScore / maxScore) * 100;
+
+            let resultMessage = (percentage < 40) ? "⚠️ High Risk of GDD. Consult a specialist." : 
+                                (percentage < 70) ? "⚠️ Moderate Risk. Further evaluation recommended." : 
+                                "✅ Low Risk. Your child is developing well!";
+
+            let testResult = { score: totalScore, maxScore, percentage, resultMessage, date: new Date().toLocaleString() };
+
+            sendDataToServer(testResult);
+
+            document.getElementById("resultText").innerHTML = `Your Score: ${totalScore}/${maxScore}<br><br>${resultMessage}`;
+            document.getElementById("resultScreen").style.display = "flex";
+        }
+
+        function sendDataToServer(resultData) {
+            fetch("save_results.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(resultData)
+            })
+            .then(response => response.text())
+            .then(data => console.log("Server Response:", data))
+            .catch(error => console.error("Error:", error));
+        }
+
+        function restartTest() {
+            document.getElementById("resultScreen").style.display = "none";
+            document.getElementById("testContainer").style.display = "none";
+            document.getElementById("test").innerHTML = "";
+            answers = {};
+        }
+    </script>
+
+</body>
+</html>
